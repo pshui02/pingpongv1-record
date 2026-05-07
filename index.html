@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乒乓紀錄系統 (修正功能版)</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3412/3412862.png">
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; padding: 15px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1a73e8; margin-bottom: 20px; }
+        .section { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .flex-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        input, select, button { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; }
+        button { background: #1a73e8; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .btn-danger { background: #ea4335; }
+        .btn-warning { background: #fbbc05; color: #333; }
+        .btn-text-danger { color: #ea4335; background: none; border: none; padding: 0 5px; cursor: pointer; font-size: 1.1em; }
+        
+        .player-chip { background: #e8f0fe; padding: 5px 12px; border-radius: 20px; display: inline-flex; align-items: center; margin: 3px; border: 1px solid #d2e3fc; }
+        .del-player { margin-left: 8px; color: #999; cursor: pointer; font-weight: bold; }
+        .del-player:hover { color: #ea4335; }
+
+        .matrix-wrapper { overflow-x: auto; margin: 15px 0; border-radius: 8px; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; min-width: 450px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
+        .has-value { background: #e6f4ea; color: #1e8e3e; font-weight: bold; }
+
+        .history-box { max-height: 300px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px; }
+        .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏓 乒乓紀錄系統</h1>
+
+    <div class="section">
+        <h3>1. 球員名單 (可點擊 X 刪除)</h3>
+        <div class="flex-row">
+            <input type="text" id="playerName" placeholder="輸入姓名">
+            <button onclick="addPlayer()">加入</button>
+            <button class="btn-danger" onclick="clearAllData()">重置全部</button>
+        </div>
+        <div id="playerList" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="section">
+        <h3>2. 紀錄新對局</h3>
+        <div class="flex-row">
+            <select id="playerA"></select> ⚔️ <select id="playerB"></select>
+            <button onclick="recordMatch()" style="background: #34a853;">紀錄對賽</button>
+            <button class="btn-warning" onclick="undoLastMatch()">撤銷上一筆</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>3. 對陣矩陣統計</h3>
+        <div class="matrix-wrapper"><table id="vsMatrix"><thead id="matrixHead"></thead><tbody id="matrixBody"></tbody></table></div>
+    </div>
+
+    <div class="section" style="border:none;">
+        <h3>4. 對賽歷史 (點擊 🗑️ 刪除錯誤項)</h3>
+        <div id="history" class="history-box"></div>
+    </div>
+</div>
+
+<script>
+    let players = [];
+    let historyLog = [];
+
+    window.onload = function() {
+        const saved = localStorage.getItem('pingpong_data_v6');
+        if (saved) {
+            const data = JSON.parse(saved);
+            players = data.players || [];
+            historyLog = data.historyLog || [];
+        }
+        updateUI();
+    };
+
+    function addPlayer() {
+        const name = document.getElementById('playerName').value.trim();
+        if (!name || players.includes(name) || players.length >= 10) return;
+        players.push(name);
+        document.getElementById('playerName').value = '';
+        updateUI();
+        save();
+    }
+
+    // 刪除特定球員
+    function deletePlayer(name) {
+        if (!confirm(`確定要移除球員「${name}」嗎？這將不會刪除歷史紀錄，但會影響統計顯示。`)) return;
+        players = players.filter(p => p !== name);
+        updateUI();
+        save();
+    }
+
+    function recordMatch() {
+        const pA = document.getElementById('playerA').value;
+        const pB = document.getElementById('playerB').value;
+        if (!pA || !pB || pA === pB) return;
+
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        
+        // 存入紀錄（不預存次數，次數由即時計算得出）
+        historyLog.unshift({ id: Date.now(), pA, pB, time: timeStr });
+        updateUI();
+        save();
+    }
+
+    // 撤銷上一筆
+    function undoLastMatch() {
+        if (historyLog.length === 0) return;
+        if (confirm("確定要撤銷最近的一筆對賽紀錄嗎？")) {
+            historyLog.shift();
+            updateUI();
+            save();
+        }
+    }
+
+    // 刪除指定的一筆歷史
+    function deleteHistoryItem(id) {
+        if (!confirm("確定要刪除這筆紀錄嗎？統計數據將自動扣除。")) return;
+        historyLog = historyLog.filter(item => item.id !== id);
+        updateUI();
+        save();
+    }
+
+    function updateUI() {
+        // 1. 球員清單
+        const totals = {}; players.forEach(p => totals[p] = 0);
+        const vsMap = {};
+        
+        // 從歷史中計算即時數據 (這能確保刪除歷史時，數字自動變對)
+        historyLog.slice().reverse().forEach(h => {
+            if(totals.hasOwnProperty(h.pA)) totals[h.pA]++;
+            if(totals.hasOwnProperty(h.pB)) totals[h.pB]++;
+            const pair = [h.pA, h.pB].sort().join(" vs ");
+            vsMap[pair] = (vsMap[pair] || 0) + 1;
+            h.tempCount = vsMap[pair]; // 標註這是第幾次
+        });
+
+        document.getElementById('playerList').innerHTML = players.map(p => `
+            <span class="player-chip">${p} (計:${totals[p]}) <span class="del-player" onclick="deletePlayer('${p}')">×</span></span>
+        `).join('');
+
+        // 2. 下拉選單
+        const opts = players.map(p => `<option value="${p}">${p}</option>`).join('');
+        document.getElementById('playerA').innerHTML = opts;
+        document.getElementById('playerB').innerHTML = opts;
+
+        // 3. 矩陣
+        const head = document.getElementById('matrixHead');
+        const body = document.getElementById('matrixBody');
+        head.innerHTML = '<tr><th>球員</th>' + players.map(p => `<th>${p}</th>`).join('') + '</tr>';
+        body.innerHTML = players.map((pRow, i) => {
+            let row = `<tr><td><b>${pRow}</b></td>`;
+            players.forEach((pCol, j) => {
+                if (i === j) row += `<td style="color:#ccc">-</td>`;
+                else {
+                    const count = vsMap[[pRow, pCol].sort().join(" vs ")] || 0;
+                    row += `<td class="${count > 0 ? 'has-value' : ''}">${count}</td>`;
+                }
+            });
+            return row + '</tr>';
+        }).join('');
+
+        // 4. 歷史紀錄 (倒序顯示)
+        document.getElementById('history').innerHTML = historyLog.map(h => `
+            <div class="history-item">
+                <div>
+                    <b>${h.pA}</b> vs <b>${h.pB}</b> <span class="vs-tag">第 ${h.tempCount} 次</span>
+                    <small style="color:#999; margin-left:10px;">${h.time}</small>
+                </div>
+                <button class="btn-text-danger" onclick="deleteHistoryItem(${h.id})">🗑️</button>
+            </div>
+        `).join('') || "目前沒有紀錄";
+    }
+
+    function save() {
+        localStorage.setItem('pingpong_data_v6', JSON.stringify({ players, historyLog }));
+    }
+
+    function clearAllData() {
+        if (confirm("確定要重置所有數據嗎？")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+</script>
+</body>
+</html>
