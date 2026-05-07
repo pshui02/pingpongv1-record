@@ -1,0 +1,15 @@
+{
+  "short_name": "乒乓紀錄",
+  "name": "乒乓全能對賽紀錄系統",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3412/3412862.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#1a73e8"
+}
