@@ -7,38 +7,60 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    
+    <meta name="apple-mobile-web-app-title" content="乒乓紀錄">
+
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzFhNzNlOCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDUiIHI9IjM1IiBmaWxsPSIjZWE0MzM1Ii8+PHJlY3QgeD0iNDUiIHk9IjcwIiB3aWR0aD0iMTAiIGhlaWdodD0iMjUiIGZpbGw9IiM4YjQ1MTMiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjQwIiByPSI1IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzFhNzNlOCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDUiIHI9IjM1IiBmaWxsPSIjZWE0MzM1Ii8+PHJlY3QgeD0iNDUiIHk9IjcwIiB3aWR0aD0iMTAiIGhlaWdodD0iMjUiIGZpbGw9IiM4YjQ1MTMiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjQwIiByPSI1IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==">
+
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; padding: 15px; color: #333; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #1a73e8; font-size: 1.6rem; margin-bottom: 20px; }
+        h1 { text-align: center; color: #1a73e8; font-size: 1.6rem; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        /* 標題圖示的樣式 */
+        .header-icon { width: 35px; height: 35px; vertical-align: middle; }
+
         .section { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
         .flex-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         input, select, button { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; }
         button { background: #1a73e8; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-danger { background: #ea4335; }
         .btn-success { background: #34a853; }
+        
+        /* 球員標籤樣式 (可點擊) */
         .player-chip { background: #e8f0fe; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; border: 1px solid #d2e3fc; display: inline-block; margin: 3px; cursor: pointer; transition: 0.3s; }
         .player-chip:hover { background: #d2e3fc; border-color: #1a73e8; }
+        .player-chip b { color: #1a73e8; margin-left: 5px; }
+
         .matrix-wrapper { overflow-x: auto; margin: 15px 0; border-radius: 8px; border: 1px solid #ddd; }
         table { width: 100%; border-collapse: collapse; min-width: 450px; }
         th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
         .has-value { background: #e6f4ea; color: #1e8e3e; font-weight: bold; }
+        
         .history-box { max-height: 250px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
         .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
         .vs-tag { background: #666; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 8px; }
         .btn-undo { background: #5f6368; padding: 5px 10px; font-size: 0.8em; margin-left: 10px; border-radius: 5px; }
-        .edit-hint { font-size: 0.8em; color: #888; margin-bottom: 10px; display: block; }
+        
+        .edit-hint { font-size: 0.8em; color: #888; margin-bottom: 10px; display: block; background: #fffde7; padding: 5px 10px; border-radius: 5px; border: 1px solid #fff9c4; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🏓 乒乓全能紀錄系統</h1>
+    <h1>
+        <svg class="header-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="100" fill="#1a73e8" rx="20"/>
+            <circle cx="50" cy="45" r="35" fill="#ea4335"/>
+            <rect x="45" y="70" width="10" height="25" fill="#8b4513"/>
+            <circle cx="60" cy="40" r="5" fill="white"/>
+        </svg>
+        乒乓全能紀錄系統
+    </h1>
 
     <div class="section">
         <h3>1. 球員名單</h3>
-        <small class="edit-hint">💡 點擊下方球員名稱可以「修改名字」或「刪除球員」</small>
+        <small class="edit-hint">💡 溫馨提示：點擊下方藍色球員標籤，可以「修改名字」或「徹底刪除」該球員。</small>
         <div class="flex-row">
             <input type="text" id="playerName" placeholder="輸入新球員姓名">
             <button onclick="addPlayer()">加入</button>
@@ -83,7 +105,7 @@
     let historyLog = [];
 
     window.onload = function() {
-        const saved = localStorage.getItem('pingpong_pro_data');
+        const saved = localStorage.getItem('pingpong_pro_data_v2');
         if (saved) {
             const data = JSON.parse(saved);
             players = data.players || [];
@@ -108,44 +130,36 @@
         saveToLocal();
     }
 
-    // --- 修改或刪除球員核心邏輯 ---
     function editPlayer(oldName) {
-        const newName = prompt(`修改球員 "${oldName}" 的名字 (留空則會詢問是否刪除)：`, oldName);
+        const newName = prompt(`修改球員 "${oldName}" 的名字\n(若留空並確認，將進入刪除程序)：`, oldName);
         
+        if (newName === null) return; // 按了取消
+
         // 刪除邏輯
-        if (newName === null || newName.trim() === "") {
-            if (confirm(`確定要徹底刪除球員 "${oldName}" 嗎？\n這將會移除與該球員相關的所有統計資料。`)) {
-                // 從列表移除
+        if (newName.trim() === "") {
+            if (confirm(`⚠️ 確定要徹底刪除球員 "${oldName}" 嗎？\n這將會移除該球員的所有統計資料與對賽歷史。`)) {
                 players = players.filter(p => p !== oldName);
                 delete playerTotals[oldName];
-                
-                // 清理相關兩兩統計
                 for (let key in vsCounts) {
                     if (key.includes(oldName)) delete vsCounts[key];
                 }
-                
-                // 清理由歷史紀錄
                 historyLog = historyLog.filter(h => h.pA !== oldName && h.pB !== oldName);
-                
                 updateUI();
                 saveToLocal();
             }
             return;
         }
 
+        // 修改邏輯
         const trimmedNewName = newName.trim();
         if (trimmedNewName === oldName) return;
         if (players.includes(trimmedNewName)) return alert("此名字已被使用");
 
-        // 更新球員列表
         const idx = players.indexOf(oldName);
         players[idx] = trimmedNewName;
-
-        // 更新總數數據
         playerTotals[trimmedNewName] = playerTotals[oldName];
         delete playerTotals[oldName];
 
-        // 更新兩兩對賽數據的 Key
         const newVsCounts = {};
         for (let key in vsCounts) {
             if (key.includes(oldName)) {
@@ -158,7 +172,6 @@
         }
         vsCounts = newVsCounts;
 
-        // 更新歷史紀錄中的名字
         historyLog.forEach(h => {
             if (h.pA === oldName) h.pA = trimmedNewName;
             if (h.pB === oldName) h.pB = trimmedNewName;
@@ -175,17 +188,14 @@
 
         playerTotals[pA]++;
         playerTotals[pB]++;
-
         const pairKey = [pA, pB].sort().join(" vs ");
         vsCounts[pairKey] = (vsCounts[pairKey] || 0) + 1;
-
         const now = new Date();
         const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         
         historyLog.unshift({
             id: Date.now(),
-            pA: pA,
-            pB: pB,
+            pA: pA, pB: pB,
             time: timeStr,
             currentVsCount: vsCounts[pairKey]
         });
@@ -210,20 +220,17 @@
     }
 
     function updateUI() {
-        // 更新球員標籤 (可點擊)
         const listDiv = document.getElementById('playerList');
         listDiv.innerHTML = players.map(p => `
-            <span class="player-chip" onclick="editPlayer('${p}')">${p} (<b>${playerTotals[p]}</b>)</span>
+            <span class="player-chip" onclick="editPlayer('${p}')">${p} <b>${playerTotals[p]}</b></span>
         `).join('');
 
-        // 更新下拉選單
         const selA = document.getElementById('playerA');
         const selB = document.getElementById('playerB');
         const options = players.map(p => `<option value="${p}">${p}</option>`).join('');
         selA.innerHTML = options;
         selB.innerHTML = options;
 
-        // 更新對陣矩陣
         const head = document.getElementById('matrixHead');
         const body = document.getElementById('matrixBody');
         head.innerHTML = '<th>球員</th>' + players.map(p => `<th>${p}</th>`).join('');
@@ -240,7 +247,6 @@
             body.innerHTML += rowHtml + '</tr>';
         });
 
-        // 更新歷史紀錄
         const historyDiv = document.getElementById('history');
         if (historyLog.length === 0) {
             historyDiv.innerHTML = "目前沒有紀錄";
@@ -261,12 +267,13 @@
     }
 
     function saveToLocal() {
-        localStorage.setItem('pingpong_pro_data', JSON.stringify({ players, playerTotals, vsCounts, historyLog }));
+        // 使用不同的 LocalStorage Key 以避免與舊版本數據衝突
+        localStorage.setItem('pingpong_pro_data_v2', JSON.stringify({ players, playerTotals, vsCounts, historyLog }));
     }
 
     function clearAllData() {
         if (confirm("這會刪除所有球員、計數與歷史紀錄，確定嗎？")) {
-            localStorage.removeItem('pingpong_pro_data');
+            localStorage.removeItem('pingpong_pro_data_v2');
             location.reload();
         }
     }
